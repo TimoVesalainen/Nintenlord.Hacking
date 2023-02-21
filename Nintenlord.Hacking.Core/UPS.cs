@@ -146,7 +146,7 @@ namespace Nintenlord.Hacking.Core
             patchCRC32 = CalculatePatchCRC32();
         }
 
-        static byte[] Encrypt(ulong offset)
+        public static byte[] Encrypt(ulong offset)
         {
             List<byte> bytes = new List<byte>(8);
 
@@ -163,7 +163,7 @@ namespace Nintenlord.Hacking.Core
             return bytes.ToArray();
         }
 
-        static ulong Decrypt(byte** pointer)
+        public static ulong Decrypt(byte** pointer)
         {
             ulong value = 0;
             int shift = 1;
@@ -177,6 +177,28 @@ namespace Nintenlord.Hacking.Core
                 value += (ulong)((x & 0x7F) * shift);
             }
             return value;
+        }
+
+        public static ulong Decrypt(byte[] values, int index)
+        {
+            ulong value = 0;
+            int shift = 1;
+            byte x = values[index];
+            index++;
+            value += (ulong)((x & 0x7F) * shift);
+            while ((x & 0x80) == 0)
+            {
+                shift <<= 7;
+                value += (ulong)shift;
+                x = values[index];
+                index++;
+                value += (ulong)((x & 0x7F) * shift);
+            }
+            return value;
+        }
+        public static ulong Decrypt(byte[] values)
+        {
+            return Decrypt(values, 0);
         }
 
         private uint CalculatePatchCRC32()
