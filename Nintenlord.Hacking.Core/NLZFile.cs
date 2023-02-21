@@ -8,6 +8,7 @@ using System.Xml;
 using Nintenlord.Collections;
 using Nintenlord.Utility;
 using Nintenlord.Collections.DataChange;
+using Nintenlord.Collections.Dictionaries;
 
 namespace Nintenlord.Hacking.Core
 {

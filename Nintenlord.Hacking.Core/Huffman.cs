@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using Nintenlord.Collections.Trees;
 using Nintenlord.IO.Bits;
+using Nintenlord.Trees;
+using Nintenlord.Trees.Nodes;
 
 namespace Nintenlord.ROMHacking
 {
@@ -10,13 +11,12 @@ namespace Nintenlord.ROMHacking
     {
         public static BinaryTree<T> GetHuffmanTree<T>(IDictionary<T, int> items)
         {
-            LinkedList<KeyValuePair<BinaryTree<T>, int>> trees = 
-                new LinkedList<KeyValuePair<BinaryTree<T>, int>>();
+            var trees = new LinkedList<KeyValuePair<BinaryTreeNode<T>, int>>();
             
             foreach (var item in items)
             {
-                trees.AddLast(new KeyValuePair<BinaryTree<T>, int>(
-                    new BinaryTree<T>(item.Key),
+                trees.AddLast(new KeyValuePair<BinaryTreeNode<T>, int>(
+                    new BinaryTreeNode<T>(item.Key),
                     item.Value
                     ));
             }
@@ -28,14 +28,14 @@ namespace Nintenlord.ROMHacking
                 var notLast = trees.Last.Value;
                 trees.RemoveLast();
 
-                var newItem = new KeyValuePair<BinaryTree<T>, int>(
-                    new BinaryTree<T>(last.Key, notLast.Key),
+                var newItem = new KeyValuePair<BinaryTreeNode<T>, int>(
+                    new BinaryTreeNode<T>(last.Key, notLast.Key),
                     last.Value + notLast.Value
                     );
 
                 if (trees.Count > 0)
                 {
-                    LinkedListNode<KeyValuePair<BinaryTree<T>, int>> node = trees.First;
+                    var node = trees.First;
                     while (node.Value.Value > newItem.Value && node.Next != null)
                     {
                         node = node.Next;
@@ -49,7 +49,7 @@ namespace Nintenlord.ROMHacking
                 }
             }
 
-            return trees.First.Value.Key;
+            return new BinaryTree<T>(trees.First.Value.Key);
         }
 
         public static void DecompressData<T>(byte[] data, int index, int length, BinaryTree<T> tree, ICollection<T> toAddTo)
@@ -135,7 +135,7 @@ namespace Nintenlord.ROMHacking
 
         private static T Read<T>(BitReader reader, BinaryTree<T> tree)
         {
-            BinaryTreeNode<T> currentNode = tree.Head;
+            BinaryTreeNode<T> currentNode = tree.Root;
             while (!currentNode.IsLeaf)
             {
                 if (reader.ReadBit())
